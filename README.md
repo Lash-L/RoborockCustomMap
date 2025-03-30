@@ -19,7 +19,7 @@ If you would like to support me, you can do so here:
 5. Setup the map card like normal! An example configuration would look like
 ```yaml
 type: custom:xiaomi-vacuum-map-card
-vacuum_platform: roborock
+vacuum_platform: Roborock
 entity: vacuum.s7
 map_source:
   camera: image.s7_downstairs_full_custom
