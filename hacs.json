@@ -1,6 +1,6 @@
 {
   "name": "Roborock Custom Map",
-  "hacs": "0.1.0",
+  "hacs": "0.1.1",
   "homeassistant": "2025.3",
   "domains": ["image"]
 }
