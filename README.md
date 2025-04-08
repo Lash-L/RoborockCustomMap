@@ -14,7 +14,7 @@ If you would like to support me, you can do so here:
 
 1. Install the [Roborock Core Integration](https://my.home-assistant.io/redirect/config_flow_start?domain=roborock) and set it up
 2. It is recommended that you first disable the Image entities within the core integration. Open each image entity, hit the gear icon, then trigger the toggle by enabled.
-3. Install this integration
+3. Install this integration(See the installing via HACS section below)
 4. This integration works by piggybacking off of the Core integration, so the Core integration will do all the data updating to help prevent rate-limits. But that means that the core integration must be setup and loaded first. If you run into any issues, make sure the Roborock integration is loaded first, and then reload this one.
 5. Setup the map card like normal! An example configuration would look like
 ```yaml
@@ -26,12 +26,7 @@ map_source:
 calibration_source:
   camera: true
 ```
-6. You can hit Generate Room Configs to allow for cleaning of rooms. It might generate extra keys, so check the yaml and make sure there are no extra 'predefined_sections'
-
-
-### Alternative/optional
-
-Once you set up this integration, you can generate a static config in the lovelace card, and theoretically, you should be able to use that code with your Roborock CORE integration. However, it wont stay up to date if the map calibrations change significantly, or rooms change. So I'd only do this when I was sure everything was good!
+6. You can hit Edit on the card and then Generate Room Configs to allow for cleaning of rooms. It might generate extra keys, so check the yaml and make sure there are no extra 'predefined_sections'
 
 ### Installation
 
@@ -46,6 +41,10 @@ or
 1. Restart your HomeAssistant
 1. Go to Settings->Devices & Services
 1. Add the Roborock Custom Map integration
+
+### Alternative/optional
+
+Once you set up this integration, you can generate a static config in the lovelace card, and theoretically, you should be able to use that code with your Roborock CORE integration. However, it wont stay up to date if the map calibrations change significantly, or rooms change. So I'd only do this when I was sure everything was good!
 
 
 
