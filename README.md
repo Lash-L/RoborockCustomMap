@@ -15,18 +15,20 @@ If you would like to support me, you can do so here:
 1. Install the [Roborock Core Integration](https://my.home-assistant.io/redirect/config_flow_start?domain=roborock) and set it up
 2. It is recommended that you first disable the Image entities within the core integration. Open each image entity, hit the gear icon, then trigger the toggle by enabled.
 3. Install this integration(See the installing via HACS section below)
-4. This integration works by piggybacking off of the Core integration, so the Core integration will do all the data updating to help prevent rate-limits. But that means that the core integration must be setup and loaded first. If you run into any issues, make sure the Roborock integration is loaded first, and then reload this one.
-5. Setup the map card like normal! An example configuration would look like
+4. Add this integration thru Offical Integration Panel
+5. Reenable Roborock image entities (this integration will automatically create addtional image per every Roborock one with name image.yourROBOROCKgenericFLOORimage_custom)
+6. This integration works by piggybacking off of the Core integration, so the Core integration will do all the data updating to help prevent rate-limits. But that means that the core integration must be setup and loaded first. If you run into any issues, make sure the Roborock integration is loaded first, and then reload this one.
+7. Setup the map card like normal (but include different camera source image - related to this integration)! An example configuration would look like
 ```yaml
 type: custom:xiaomi-vacuum-map-card
 vacuum_platform: Roborock
 entity: vacuum.s7
 map_source:
-  camera: image.s7_downstairs_full_custom
+  camera: image.s7_downstairs_custom
 calibration_source:
   camera: true
 ```
-6. You can hit Edit on the card and then Generate Room Configs to allow for cleaning of rooms. It might generate extra keys, so check the yaml and make sure there are no extra 'predefined_sections'
+8. You can hit Edit on the card and then Generate Room Configs to allow for cleaning of rooms. It might generate extra keys, so check the yaml and make sure there are no extra 'predefined_sections'
 
 ### Installation
 
