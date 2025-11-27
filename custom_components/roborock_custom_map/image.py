@@ -5,7 +5,10 @@ import logging
 
 from homeassistant.components.image import ImageEntity
 from homeassistant.components.roborock.coordinator import RoborockDataUpdateCoordinator
-from homeassistant.components.roborock.entity import RoborockCoordinatedEntityV1
+try:
+    from homeassistant.components.roborock.entity import RoborockCoordinatedEntityV1
+except ImportError:
+    from homeassistant.components.roborock.entity import RoborockCoordinatedEntity as RoborockCoordinatedEntityV1
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant

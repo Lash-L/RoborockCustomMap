@@ -21,7 +21,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     for r_entry in roborock_entries:
         if r_entry.state == ConfigEntryState.LOADED:
-            coordinators.extend(r_entry.runtime_data.v1)
+            if hasattr(r_entry.runtime_data, "v1"):
+                # Support for older versions of Roborock integration
+                coordinators.extend(r_entry.runtime_data.v1)
+            elif isinstance(r_entry.runtime_data, dict):
+                # Support for newer versions where runtime_data is a dict of coordinators
+                coordinators.extend(r_entry.runtime_data.values())
+            else:
+                # Fallback if runtime_data is the coordinator itself or something else
+                # This depends on exact structure, but assuming dict or object
+                # If it's a list (unlikely for typed runtime_data but possible)
+                if isinstance(r_entry.runtime_data, list):
+                    coordinators.extend(r_entry.runtime_data)
+                # If it's something else, we can't safely extract coordinators.
+
             # If any unload, then we should reload as well in case there are major changes.
             r_entry.async_on_unload(unload_this_entry)
     if len(coordinators) == 0:
