@@ -29,7 +29,7 @@ async def async_setup_entry(
     async_add_entities(
         RoborockMap(
             config_entry,
-            f"{coord.duid_slug}_custom_map_{map_info.name}",
+            f"{coord.duid_slug}_custom_map_{map_info.name or f'Map {map_info.map_flag}'}",
             coord,
             coord.properties_api.home,
             map_info.map_flag,
