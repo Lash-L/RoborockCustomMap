@@ -10,6 +10,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from roborock.devices.traits.v1.home import HomeTrait
+from roborock.devices.traits.v1.map_content import MapContent
+from homeassistant.exceptions import HomeAssistantError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,17 +27,17 @@ async def async_setup_entry(
     """Set up Roborock image platform."""
 
     async_add_entities(
-        (
-            RoborockMap(
-                config_entry,
-                f"{coord.duid_slug}_custom_map_{map_info.name}",
-                coord,
-                map_info.flag,
-                map_info.name,
-            )
-            for coord in config_entry.runtime_data
-            for map_info in coord.maps.values()
-        ),
+        RoborockMap(
+            config_entry,
+            f"{coord.duid_slug}_custom_map_{map_info.name}",
+            coord,
+            coord.properties_api.home,
+            map_info.map_flag,
+            map_info.name,
+        )
+        for coord in config_entry.runtime_data
+        if coord.properties_api.home is not None
+        for map_info in (coord.properties_api.home.home_map_info or {}).values()
     )
 
 
@@ -50,6 +53,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
         config_entry: ConfigEntry,
         unique_id: str,
         coordinator: RoborockDataUpdateCoordinator,
+        home_trait: HomeTrait,
         map_flag: int,
         map_name: str,
     ) -> None:
@@ -57,48 +61,65 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
         RoborockCoordinatedEntityV1.__init__(self, unique_id, coordinator)
         ImageEntity.__init__(self, coordinator.hass)
         self.config_entry = config_entry
+        if not map_name:
+            map_name = f"Map {map_flag}"
         self._attr_name = map_name + "_custom"
         self.map_flag = map_flag
+        self._home_trait = home_trait
+
         self.cached_map = b""
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
     def is_selected(self) -> bool:
         """Return if this map is the currently selected map."""
-        return self.map_flag == self.coordinator.current_map
+        return self.map_flag == self.coordinator.properties_api.maps.current_map
+
+    @property
+    def _map_content(self) -> MapContent | None:
+        if self._home_trait.home_map_content and (
+            map_content := self._home_trait.home_map_content.get(self.map_flag)
+        ):
+            return map_content
+        return None
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass load any previously cached maps from disk."""
         await super().async_added_to_hass()
-        self._attr_image_last_updated = self.coordinator.maps[
-            self.map_flag
-        ].last_updated
+        self._attr_image_last_updated = self.coordinator.last_home_update
         self.async_write_ha_state()
 
     def _handle_coordinator_update(self) -> None:
         # If the coordinator has updated the map, we can update the image.
-        self._attr_image_last_updated = self.coordinator.maps[
-            self.map_flag
-        ].last_updated
+        if (map_content := self._map_content) is None:
+            return
+        if self.cached_map != map_content.image_content:
+            self.cached_map = map_content.image_content
+            self._attr_image_last_updated = self.coordinator.last_home_update
 
         super()._handle_coordinator_update()
 
     async def async_image(self) -> bytes | None:
         """Get the cached image."""
-        return self.coordinator.maps[self.map_flag].image
+        if (map_content := self._map_content) is None:
+            raise HomeAssistantError("Map flag not found in coordinator maps")
+        return map_content.image_content
 
     @property
     def extra_state_attributes(self):
-        map_data = self.coordinator.maps[self.map_flag].map_data
+        if (map_content := self._map_content) is None:
+            raise HomeAssistantError("Map flag not found in coordinator maps")
+
+        map_data = map_content.map_data
         if map_data is None:
             return {}
-        for room in map_data.rooms.values():
-            room.name = self.coordinator.maps[self.map_flag].rooms.get(room.number)
+        if map_data.rooms is not None:
+            for room in map_data.rooms.values():
+                name = map_data.rooms.get(room.number)
+                room.name = name.name if name else "Unknown"
 
         return {
-            "calibration_points": self.coordinator.maps[
-                self.map_flag
-            ].map_data.calibration(),
+            "calibration_points": map_data.calibration(),
             "rooms": map_data.rooms,
             "zones": map_data.zones,
         }
