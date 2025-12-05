@@ -115,11 +115,11 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
             return {}
         if map_data.rooms is not None:
             for room in map_data.rooms.values():
-                name = map_data.rooms.get(room.number)
+                name = self._home_trait._rooms_trait.room_map.get(room.number)
                 room.name = name.name if name else "Unknown"
-
+        calibration = map_data.calibration()
         return {
-            "calibration_points": map_data.calibration(),
+            "calibration_points": calibration,
             "rooms": map_data.rooms,
             "zones": map_data.zones,
         }
