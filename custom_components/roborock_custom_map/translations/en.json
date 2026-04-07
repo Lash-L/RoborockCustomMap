@@ -3,5 +3,69 @@
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_service%]"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "description": "Specify which features to draw on the map.",
+        "data": {
+          "charger": "Charger",
+          "cleaned_area": "Cleaned area",
+          "goto_path": "Go-to path",
+          "ignored_obstacles": "Ignored obstacles",
+          "ignored_obstacles_with_photo": "Ignored obstacles with photo",
+          "mop_path": "Mop path",
+          "no_carpet_zones": "No carpet zones",
+          "no_go_zones": "No-go zones",
+          "no_mopping_zones": "No mopping zones",
+          "obstacles": "Obstacles",
+          "obstacles_with_photo": "Obstacles with photo",
+          "path": "Path",
+          "predicted_path": "Predicted path",
+          "vacuum_position": "Vacuum position",
+          "virtual_walls": "Virtual walls",
+          "zones": "Zones",
+          "show_background": "Show background",
+          "show_walls": "Show walls",
+          "show_rooms": "Show rooms",
+          "show_floor": "Show floor (scanned area)"
+        },
+        "data_description": {
+          "charger": "Show the charger on the map.",
+          "cleaned_area": "Show the area cleaned on the map.",
+          "goto_path": "Show the go-to path on the map.",
+          "ignored_obstacles": "Show ignored obstacles on the map.",
+          "ignored_obstacles_with_photo": "Show ignored obstacles with photos on the map.",
+          "mop_path": "Show the mop path on the map.",
+          "no_carpet_zones": "Show the no carpet zones on the map.",
+          "no_go_zones": "Show the no-go zones on the map.",
+          "no_mopping_zones": "Show the no-mop zones on the map.",
+          "obstacles": "Show obstacles on the map.",
+          "obstacles_with_photo": "Show obstacles with photos on the map.",
+          "path": "Show the path on the map.",
+          "predicted_path": "Show the predicted path on the map.",
+          "vacuum_position": "Show the vacuum position on the map.",
+          "virtual_walls": "Show virtual walls on the map.",
+          "zones": "Show zones on the map.",
+          "show_background": "Show the map background (the area outside the cleaned region). Disable for a transparent background image.",
+          "show_walls": "Show walls on the map. Disable for a transparent overlay.",
+          "show_rooms": "Show room colouring on the map. Disable for a transparent overlay.",
+          "show_floor": "Show the general scanned floor area (MAP_INSIDE/MAP_SCAN pixels). Disable to hide removed/hidden zones that appear as light green."
+        }
+      }
+    }
+  },
+  "entity": {
+    "select": {
+      "rotation": {
+        "name": "Map rotation",
+        "state": {
+          "0": "0°",
+          "90": "90°",
+          "180": "180°",
+          "270": "270°"
+        }
+      }
+    }
   }
 }
