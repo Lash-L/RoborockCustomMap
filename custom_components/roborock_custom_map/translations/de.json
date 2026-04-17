@@ -7,12 +7,12 @@
   "entity": {
     "select": {
       "rotation": {
-        "name": "Map rotation",
+        "name": "Kartenrotation",
         "state": {
-          "0": "0°",
-          "90": "90°",
-          "180": "180°",
-          "270": "270°"
+          "0": "Keine Drehung",
+          "90": "90° drehen",
+          "180": "180° drehen",
+          "270": "270° drehen"
         }
       }
     }

@@ -26,6 +26,26 @@ map_source:
 calibration_source:
   camera: true
 ```
+### Map rotation (new)
+
+If your map is displayed sideways or upside down, you can rotate the map directly in Home Assistant.
+
+This integration provides a **Select entity per map** to control rotation:
+- `select.<...>_rotation`
+- Options: `0°`, `90°`, `180°`, `270°` (labels depend on your HA language)
+
+This rotates **both**:
+- the map image
+- and the calibration points used by the Xiaomi Vacuum Map Card  
+  (so rooms/zones and interactions stay aligned after rotation)
+
+**How to use**
+1. Go to **Settings → Devices & services → Roborock Custom Map**
+2. Open the device/entities list
+3. Find the `… rotation` select entity for your map and choose the correct rotation
+
+No reload is required; the map updates immediately.
+
 6. You can hit Edit on the card and then Generate Room Configs to allow for cleaning of rooms. It might generate extra keys, so check the yaml and make sure there are no extra 'predefined_sections'
 
 ### Installation
