@@ -111,6 +111,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
 
         self.config_entry = config_entry
         self.map_flag = map_flag
+        self.rotation_key = f"{coordinator.duid_slug}_{map_flag}"
         self._home_trait = home_trait
 
         if not map_name:
@@ -145,7 +146,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
         self.async_on_remove(
             async_dispatcher_connect(
                 self.hass,
-                f"{SIGNAL_ROTATION_CHANGED}_{self.config_entry.entry_id}_{self.map_flag}",
+                f"{SIGNAL_ROTATION_CHANGED}_{self.config_entry.entry_id}_{self.rotation_key}",
                 self._handle_rotation_changed,
             )
         )
@@ -184,7 +185,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
             self.hass.data.get(DOMAIN, {})
             .get(self.config_entry.entry_id, {})
             .get(CONF_MAP_ROTATION, {})
-            .get(self.map_flag, DEFAULT_MAP_ROTATION)
+            .get(self.rotation_key, DEFAULT_MAP_ROTATION)
         )
 
         if rotation not in MAP_ROTATION_OPTIONS:
