@@ -15,7 +15,7 @@ from homeassistant.components.roborock.coordinator import RoborockDataUpdateCoor
 from homeassistant.components.roborock.entity import RoborockCoordinatedEntityV1
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -154,6 +154,12 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
         self.async_write_ha_state()
 
     def _handle_rotation_changed(self) -> None:
+        """Rotation changed; schedule state update in the event loop."""
+        self.hass.loop.call_soon_threadsafe(self._async_handle_rotation_changed)
+
+
+    @callback
+    def _async_handle_rotation_changed(self) -> None:
         """Rotation changed; bump last_updated to bust the image cache."""
         self._attr_image_last_updated = dt_util.utcnow()
         self.async_write_ha_state()
