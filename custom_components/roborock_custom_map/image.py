@@ -15,7 +15,7 @@ from homeassistant.components.roborock.coordinator import RoborockDataUpdateCoor
 from homeassistant.components.roborock.entity import RoborockCoordinatedEntityV1
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -111,6 +111,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
 
         self.config_entry = config_entry
         self.map_flag = map_flag
+        self.rotation_key = f"{coordinator.duid_slug}_{map_flag}"
         self._home_trait = home_trait
 
         if not map_name:
@@ -145,7 +146,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
         self.async_on_remove(
             async_dispatcher_connect(
                 self.hass,
-                f"{SIGNAL_ROTATION_CHANGED}_{self.config_entry.entry_id}_{self.map_flag}",
+                f"{SIGNAL_ROTATION_CHANGED}_{self.config_entry.entry_id}_{self.rotation_key}",
                 self._handle_rotation_changed,
             )
         )
@@ -153,6 +154,12 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
         self.async_write_ha_state()
 
     def _handle_rotation_changed(self) -> None:
+        """Rotation changed; schedule state update in the event loop."""
+        self.hass.loop.call_soon_threadsafe(self._async_handle_rotation_changed)
+
+
+    @callback
+    def _async_handle_rotation_changed(self) -> None:
         """Rotation changed; bump last_updated to bust the image cache."""
         self._attr_image_last_updated = dt_util.utcnow()
         self.async_write_ha_state()
@@ -184,7 +191,7 @@ class RoborockMap(RoborockCoordinatedEntityV1, ImageEntity):
             self.hass.data.get(DOMAIN, {})
             .get(self.config_entry.entry_id, {})
             .get(CONF_MAP_ROTATION, {})
-            .get(self.map_flag, DEFAULT_MAP_ROTATION)
+            .get(self.rotation_key, DEFAULT_MAP_ROTATION)
         )
 
         if rotation not in MAP_ROTATION_OPTIONS:
