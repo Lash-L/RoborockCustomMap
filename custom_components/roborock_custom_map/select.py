@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import logging
-
 from homeassistant.components.roborock.coordinator import RoborockDataUpdateCoordinator
 from homeassistant.components.roborock.entity import RoborockCoordinatedEntityV1
 from homeassistant.components.select import SelectEntity
@@ -21,8 +19,6 @@ from .const import (
     MAP_ROTATION_OPTIONS,
     SIGNAL_ROTATION_CHANGED,
 )
-
-_LOGGER = logging.getLogger(__name__)
 
 PARALLEL_UPDATES = 0
 
@@ -52,6 +48,7 @@ class RoborockMapRotationSelect(RoborockCoordinatedEntityV1, RestoreEntity, Sele
 
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.CONFIG
+    _attr_translation_key = "rotation"
 
     def __init__(
         self,
@@ -66,6 +63,7 @@ class RoborockMapRotationSelect(RoborockCoordinatedEntityV1, RestoreEntity, Sele
 
         self.config_entry = config_entry
         self.map_flag = map_flag
+        self.rotation_key = f"{coordinator.duid_slug}_{map_flag}"
 
         if not map_name:
             map_name = f"Map {map_flag}"
@@ -73,7 +71,6 @@ class RoborockMapRotationSelect(RoborockCoordinatedEntityV1, RestoreEntity, Sele
         self._attr_name = f"{map_name} rotation"
         self._attr_options = [str(v) for v in MAP_ROTATION_OPTIONS]
         self._attr_current_option = str(DEFAULT_MAP_ROTATION)
-        self._attr_translation_key = "rotation"
 
     async def async_added_to_hass(self) -> None:
         """Restore previous rotation setting and store in hass.data."""
@@ -85,7 +82,7 @@ class RoborockMapRotationSelect(RoborockCoordinatedEntityV1, RestoreEntity, Sele
 
         # Persist selection for the image entity to read
         self.hass.data[DOMAIN][self.config_entry.entry_id][CONF_MAP_ROTATION][
-            self.map_flag
+            self.rotation_key
         ] = int(self._attr_current_option)
 
         self.async_write_ha_state()
@@ -98,13 +95,13 @@ class RoborockMapRotationSelect(RoborockCoordinatedEntityV1, RestoreEntity, Sele
         self._attr_current_option = option
 
         self.hass.data[DOMAIN][self.config_entry.entry_id][CONF_MAP_ROTATION][
-            self.map_flag
+            self.rotation_key
         ] = int(option)
 
         # Notify the image entity to bust the cache via image_last_updated bump
         async_dispatcher_send(
             self.hass,
-            f"{SIGNAL_ROTATION_CHANGED}_{self.config_entry.entry_id}_{self.map_flag}",
+            f"{SIGNAL_ROTATION_CHANGED}_{self.config_entry.entry_id}_{self.rotation_key}",
         )
 
         self.async_write_ha_state()
